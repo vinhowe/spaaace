@@ -1,0 +1,7 @@
+<resources>
+
+    <string name="app_name">Spaaace</string>
+    <string name="space_wp_desc">Warp through space</string>
+    <string name="menu_reset_to_defaults">Reset to Defaults</string>
+
+</resources>
