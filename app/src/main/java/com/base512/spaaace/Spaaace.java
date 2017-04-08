@@ -8,8 +8,8 @@ import static com.base512.spaaace.Entity.EntityCallback;
 
 public class Spaaace {
 	
-	final static int CELL_WIDTH = 16;
-	final static int CELL_HEIGHT = 32;
+	final static int CELL_WIDTH = 8;
+	final static int CELL_HEIGHT = 16;
 
 	final static int ENTITY_TYPE_STAR = 2;
 	final static int ENTITY_TYPE_PLANET = 3;
@@ -106,7 +106,7 @@ public class Spaaace {
 
 	private void addAllStars() {
         final int screenSize = rows * columns;
-        final int starCount = screenSize / 40;
+        final int starCount = screenSize / 80;
 
         int maxWidth = 0;
         int minWidth = columns - 1;
@@ -163,7 +163,7 @@ public class Spaaace {
         };
 
         int depth = random.nextInt(rows);
-        float speed = random.nextFloat() * (random.nextFloat() > 0.80f ? 5 : 0.125f) + 0.25F;
+        float speed = random.nextFloat() * (random.nextFloat() > 0.90f ? 20 : 3) + 0F;
 
         String[][] starShape = speed < 1.5f ?  shape : speed < 3 ? shapeSpeed2 : shapeSpeed3;
 
