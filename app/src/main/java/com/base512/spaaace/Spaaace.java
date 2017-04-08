@@ -35,6 +35,7 @@ public class Spaaace {
 		//anim.halfDelay(1);
 
 		addAllDatums();
+		addAllPersonal();
 		addAllTripus();
 		addAllPlanets();
         addAllStars();
@@ -77,6 +78,10 @@ public class Spaaace {
 
 		if(random.nextFloat() > 0.99) {
 			addTripus();
+		}
+
+		if(random.nextFloat() > 0.99) {
+			addPersonal();
 		}
 		char[] buffer = anim.screen.text;
 		char[] cbuffer = anim.screen.color;
@@ -262,7 +267,7 @@ public class Spaaace {
 		
 		final Entity planetObject = new Entity("planet", planetImage[planetIndex], colorMask, 0, 0, depth);
 		planetObject.type = ENTITY_TYPE_PLANET;
-		planetObject.callback = tripusCallback;
+		planetObject.callback = planetCallback;
 		planetObject.autoTrans = true;
 		planetObject.dieOffscreen = true;
 		planetObject.deathCallback = planetDeathCallback;
@@ -305,6 +310,98 @@ public class Spaaace {
 					break;
 				}
 			}*/
+		}
+	};
+
+	private void addAllPersonal() {
+		final int screenSize = rows * columns;
+		final double personalCount = 1;
+
+		int maxWidth = 0;
+		int minWidth = columns - 1;
+
+		int maxHeight = 0;
+		int minHeight = rows - 1;
+
+		for (int i = 0; i < personalCount; i++) {
+			int x = random.nextInt(minWidth - maxWidth) + maxWidth;
+			int y = random.nextInt(minHeight - maxHeight) + maxHeight;
+			addPersonal(x, y);
+		}
+	}
+
+	private void addPersonal() {
+		int maxWidth = 0;
+		int minWidth = columns - 1;
+
+		int maxHeight = 0;
+		int minHeight = rows - 1;
+
+		int x = random.nextInt(minWidth - maxWidth) + maxWidth;;
+		int y = minHeight;
+
+		addPersonal(x, y);
+	}
+
+	private void addPersonal(int x, int y) {
+		final String personalImage[][] = {
+				{
+						"???/\\???",
+						"??//\\\\??",
+						"?//??\\\\?",
+						"/_\\__/_\\",
+						"??*??*??",
+						"??*??*??",
+
+				},
+				{
+						"   11   ",
+						"  1221  ",
+						" 12  21 ",
+						"11211211",
+						"  r  r  ",
+						"  r  r  ",
+
+				},
+		};
+
+		// 1: outside
+		// 2: cockpit
+
+		int personalNum = random.nextInt(personalImage.length / 2);
+		int personalIndex = personalNum * 2;
+		float speed = random.nextFloat() * 2 + 0.25F;
+		int depth = random.nextInt(rows);
+		String[] colorMask = personalImage[personalIndex + 1];
+
+		randColorMono(colorMask);
+
+		final Entity personalObject = new Entity("personal", personalImage[personalIndex], colorMask, 0, 0, depth);
+		personalObject.type = ENTITY_TYPE_PLANET;
+		personalObject.callback = personalCallback;
+		personalObject.autoTrans = true;
+		personalObject.dieOffscreen = true;
+		personalObject.deathCallback = personalDeathCallback;
+		personalObject.callbackArguments[1] = -speed;
+		personalObject.physical = true;
+		personalObject.defaultColor = 'r';
+		personalObject.collHandler = shipCollision;
+
+		personalObject.fy = y;
+		personalObject.fx = x;
+
+		anim.addEntity(personalObject);
+	}
+
+	EntityCallback personalCallback = new EntityCallback() {
+		public void run(Entity entity) {
+			entity.move();
+		}
+	};
+
+	EntityCallback personalDeathCallback = new EntityCallback() {
+		public void run(Entity entity) {
+			//addPlanet();
 		}
 	};
 
