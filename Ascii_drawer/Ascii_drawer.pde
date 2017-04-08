@@ -9,9 +9,12 @@ char drawingCharacter = '.';
 ArrayList<Character> pendingCharacters;
 boolean waitingForAltCode = false;
 String altBuffer = "";
- 
+int[] selectStartPos = new int[2];
+int[] selectCurrentPos = new int[2];
+boolean isSelecting = false;
+boolean showGrid = true;
 void setup() {
-  size(1920, 1080);
+  size(500, 500);
   
   rows = height/cellHeight;
   columns = width/cellWidth;
@@ -21,13 +24,35 @@ void setup() {
   pendingCharacters = new ArrayList();
   
   PFont font;
-  font = createFont("Monospaced", cellHeight);
+  font = createFont("Roboto Mono", cellHeight);
   textFont(font);
 }
  
 void draw() {
   
   background(back);
+  
+  fill(255);
+  
+/*  for(int x = 0; x < selectCurrentPos[0]; x++) {
+    for(int y = 0; y < selectCurrentPos[1]; y++) {
+      int realX = (selectStartPos[0]+x)*cellWidth;
+      int realY = (selectStartPos[1]+y)*cellHeight;
+      rect(realX, realY, realX+cellWidth, realY+cellHeight); //<>//
+    }
+  }*/
+  
+  if(isSelecting) {
+    int selectionStartX = selectStartPos[0]*cellWidth;
+    int selectionStartY = selectStartPos[1]*cellHeight;
+    
+    int selectionBoxWidth = (selectCurrentPos[0]*cellWidth)-selectionStartX;
+    int selectionBoxHeight = (selectCurrentPos[1]*cellHeight)-selectionStartY;
+    
+    rect(selectionStartX, selectionStartY, selectionBoxWidth, selectionBoxHeight);
+  }
+  
+  //print(selectStartPos[0]+" "+selectStartPos[1]);
   
 /*  for(int y = 0; y < characters.length; y++) {
     char[] line = characters[y];
@@ -36,22 +61,30 @@ void draw() {
     }
   }*/
   
-    fill(255);
+    
   stroke(64);
  
-  
-  for (int y = 0; y < rows; y++) {
-    line(0,y*cellHeight,width,y*cellHeight);
-  }
-  
-  for (int x = 0; x < columns; x++) {
-    line(x*cellWidth,0,x*cellWidth,height);
+  if(showGrid) {
+    for (int y = 0; y < rows; y++) {
+      line(0,y*cellHeight,width,y*cellHeight);
+    }
+    
+    for (int x = 0; x < columns; x++) {
+      line(x*cellWidth,0,x*cellWidth,height);
+    }
   }
   
   stroke(0,0,0,0);
   
   for (Character pending : pendingCharacters) {
+    boolean invert = isSelecting && pending.x >= selectStartPos[0] && pending.y >= selectStartPos[1] && pending.x < selectCurrentPos[0] && pending.y <= selectCurrentPos[1];
+    if(invert) {
+      fill(0);
+    }
     text(pending.value, pending.x*cellWidth, pending.y*cellHeight);
+    if(invert) {
+      fill(255);
+    }
   }
   //pendingCharacters.clear();
   //text(mouseX, 50, 50);
@@ -68,26 +101,63 @@ void mousePressed() {
   } else if (mouseButton == RIGHT) {
     startSelection();
   } else {
+    
   }
 }
 
 void mouseDragged() {
-    if (mouseButton == LEFT) {
+  if (mouseButton == LEFT) {
     mouseInput();
   } else if (mouseButton == RIGHT) {
-    //saveIt
+    updateSelection();
   } else {
+    
   }
   
 }
 
+void mouseReleased() {
+  if (mouseButton == RIGHT) {
+    finishSelecting();
+  }
+}
 
 void mouseInput() { 
   touchCharacter(false);
 }
 
 void startSelection() {
+  if(isSelecting) {
+    return;
+  }
+  isSelecting = true;
   
+  selectStartPos[0] = (mouseX/cellWidth);
+  selectStartPos[1] = (mouseY/cellHeight);
+  
+  selectCurrentPos = selectStartPos.clone();
+}
+
+void updateSelection() {  
+  selectCurrentPos[0] = Math.max((mouseX/cellWidth)+1, selectStartPos[0]+1);
+  selectCurrentPos[1] = Math.max((mouseY/cellHeight)+1, selectStartPos[1]+1);
+  
+}
+
+void finishSelecting() {
+  isSelecting = false;
+  print("\n");
+  String outputText = "";
+  char[][] selectionBox = new char[Math.abs(selectCurrentPos[0]-selectStartPos[0])][Math.abs(selectCurrentPos[1]-selectStartPos[1])];
+  for(int y = selectStartPos[1]; y <= selectCurrentPos[1]; y++) {
+    outputText += "\"";
+    for(int x = selectStartPos[0]; x <= selectCurrentPos[0]; x++) {
+      outputText += characters[x][y] == '\0' ? ' ' : characters[x][y];
+    }
+    outputText += "\",\n";
+  }
+  outputText = outputText.replace("\\", "\\\\");
+  print(outputText);
 }
 
 void touchCharacter(boolean toggle) {
@@ -116,7 +186,6 @@ void touchCharacter(boolean toggle) {
   }
   setCharacter(newCharacter, cellX, cellY);
   
-
 }
 
 void removeCharacter(int x, int y, int i) {
@@ -157,7 +226,17 @@ void keyPressed() {
     return;
   }
   
-    int keyIndex = -1;
+  switch(key) {
+    case 'q':
+      showGrid = !showGrid;
+      return;
+    case 'w':
+      pendingCharacters.clear();
+      characters = new char[height][width];
+      return;
+  }
+  
+  int keyIndex = -1;
   if (key >= '!' && key <= '~') { 
     keyIndex = key - 'A';
   } else if (key >= 128 && key <= 254) {
