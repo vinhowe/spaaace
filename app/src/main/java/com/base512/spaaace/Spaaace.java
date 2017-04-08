@@ -110,7 +110,7 @@ public class Spaaace {
 
 	private void addAllStars() {
         final int screenSize = rows * columns;
-        final int starCount = screenSize / 80;
+        final int starCount = screenSize / 20;
 
         int maxWidth = 0;
         int minWidth = columns - 1;
@@ -121,7 +121,7 @@ public class Spaaace {
         for (int i = 0; i < starCount; i++) {
             int x = random.nextInt(minWidth - maxWidth) + maxWidth;
             int y = random.nextInt(minHeight - maxHeight) + maxHeight;
-            addStar(x, y);
+            addStar(x, y, Math.random() > 0.5);
         }
     }
 
@@ -132,10 +132,10 @@ public class Spaaace {
         int x = random.nextInt(minWidth - maxWidth) + maxWidth;;
         int y = 0;
 
-        addStar(x, y);
+        addStar(x, y, false);
     }
 
-	private void addStar(int x, int y) {
+	private void addStar(int x, int y, boolean isBackground) {
 		final String[][] shape = {
                 {"+"}, {"*"}, {"●"}
 		};
@@ -166,10 +166,31 @@ public class Spaaace {
                 }
         };
 
-        int depth = random.nextInt(rows);
-        float speed = random.nextFloat() * (random.nextFloat() > 0.90f ? 20 : 3) + 0F;
+		final String[][] shapeSpeed4 = {
+				{
+						"*",
+						"*",
+						"*",
+						"*",
+						"*",
+						"*",
+						"*"
+				},
+				{
+						"*",
+						"*",
+						"*",
+						"*",
+						"*",
+						"*",
+						"●"
+				}
+		};
 
-        String[][] starShape = speed < 1.5f ?  shape : speed < 3 ? shapeSpeed2 : shapeSpeed3;
+        int depth = random.nextInt(rows);
+        float speed = isBackground ? 0.00f : random.nextFloat() * (random.nextFloat() > 0.70f ? random.nextFloat() > 0.70f ? 50 : 20 : 3);
+
+        String[][] starShape = speed < 1.5f ?  shape : speed < 3 ? shapeSpeed2 : speed < 15 ? shapeSpeed3 : shapeSpeed4;
 
 		final Entity entity = new Entity("star", starShape, 0, 0, depth);
 		entity.type = ENTITY_TYPE_STAR;
@@ -177,7 +198,7 @@ public class Spaaace {
 		entity.callbackArguments[3] = random.nextFloat();
 		entity.dieOffscreen = true;
 		entity.physical = true;
-		entity.defaultColor = random.nextFloat() > 0.75 ? 'Y' : 'W';
+		entity.defaultColor = random.nextFloat() > 0.75 ? isBackground ? 'y' : 'Y' : isBackground ? 'w' : 'W';
         entity.deathCallback = starDeathCallback;
 
         entity.fy = y;
@@ -385,8 +406,11 @@ public class Spaaace {
 		int maxWidth = 0;
 		int minWidth = columns - 1;
 
+		int maxHeight = 0;
+		int minHeight = rows - 1;
+
 		int x = random.nextInt(minWidth - maxWidth) + maxWidth;;
-		int y = 0;
+		int y = minHeight;
 
 		addDatum(x, y);
 	}
@@ -394,22 +418,14 @@ public class Spaaace {
 	private void addDatum(int x, int y) {
 		final String datumImage[][] = {
 				{
-						"?--?",
-						"????",
-						"?--?",
-						"????",
-						"/||\\",
-						"\\/\\/",
-						"?\\/",
+						"?/\\?",
+						"/\\/\\",
+						"\\||/",
 				},
 				{
-						" yy ",
-						"    ",
-						" rr ",
-						"    ",
-						"gyyg",
-						"gggg",
 						" gg ",
+						"gggg",
+						"gyyg",
 				},
 		};
 
@@ -420,7 +436,7 @@ public class Spaaace {
 
 		int datumNum = random.nextInt(datumImage.length / 2);
 		int datumIndex = datumNum * 2;
-		float speed = random.nextFloat() * 2 + 0.25F;
+		float speed = random.nextFloat() + 0.25F;
 		int depth = random.nextInt(rows);
 		String[] colorMask = datumImage[datumIndex + 1];
 
@@ -430,7 +446,7 @@ public class Spaaace {
 		datumObject.autoTrans = true;
 		datumObject.dieOffscreen = true;
 		datumObject.deathCallback = tripusDeathCallback;
-		datumObject.callbackArguments[1] = speed;
+		datumObject.callbackArguments[1] = -speed;
 		datumObject.physical = true;
 		datumObject.defaultColor = 'c';
 		datumObject.collHandler = shipCollision;

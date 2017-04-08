@@ -5,7 +5,7 @@ int rows;
 int columns;
 int screenWidth = 500;
 char[][] characters;
-char drawingCharacter = '.';
+char drawingCharacter = '█';
 ArrayList<Character> pendingCharacters;
 boolean waitingForAltCode = false;
 String altBuffer = "";
@@ -24,7 +24,7 @@ void setup() {
   pendingCharacters = new ArrayList();
   
   PFont font;
-  font = createFont("Roboto Mono", cellHeight);
+  font = createFont("Courier New", cellHeight);
   textFont(font);
 }
  
@@ -33,6 +33,7 @@ void draw() {
   background(back);
   
   fill(255);
+ 
   
 /*  for(int x = 0; x < selectCurrentPos[0]; x++) {
     for(int y = 0; y < selectCurrentPos[1]; y++) {
@@ -151,7 +152,7 @@ void finishSelecting() {
   char[][] selectionBox = new char[Math.abs(selectCurrentPos[0]-selectStartPos[0])][Math.abs(selectCurrentPos[1]-selectStartPos[1])];
   for(int y = selectStartPos[1]; y <= selectCurrentPos[1]; y++) {
     outputText += "\"";
-    for(int x = selectStartPos[0]; x <= selectCurrentPos[0]; x++) {
+    for(int x = selectStartPos[0]; x < selectCurrentPos[0]; x++) {
       outputText += characters[x][y] == '\0' ? ' ' : characters[x][y];
     }
     outputText += "\",\n";
@@ -217,8 +218,8 @@ void keyPressed() {
       altBuffer += keyString;
     } catch (NumberFormatException e) {
       if (!altBuffer.equals("")) {
-        drawingCharacter = (char)(int)(Integer.valueOf(altBuffer)%255);
-        print("character is "+drawingCharacter);
+        drawingCharacter = (char)(int)(Integer.valueOf(altBuffer));
+        print("character is "+"█".indexOf(0)+"\n");
       }
       altBuffer = "";
       waitingForAltCode = false;
