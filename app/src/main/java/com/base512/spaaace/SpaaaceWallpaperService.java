@@ -17,7 +17,6 @@ public class SpaaaceWallpaperService extends WallpaperService {
 	}
 
 	public class SpaaaceWallpaperEngine extends Engine {
-        private final long serialVersionUID = 1L;
         private int width, height;
         private int columns, rows;
         private int cellWidth, cellHeight;
