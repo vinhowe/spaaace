@@ -34,6 +34,7 @@ public class Spaaace {
 		anim = new Animation(columns, rows);
 		//anim.halfDelay(1);
 
+		addAllShips();
 		addAllPlanets();
         addAllStars();
 	}
@@ -68,6 +69,10 @@ public class Spaaace {
         if(random.nextFloat() > 0.99) {
             addPlanet();
         }
+
+        if(random.nextFloat() > 0.98) {
+			addShip();
+		}
 		
 		char[] buffer = anim.screen.text;
 		char[] cbuffer = anim.screen.color;
@@ -232,14 +237,14 @@ public class Spaaace {
 		
 		final Entity planetObject = new Entity("planet", planetImage[planetIndex], colorMask, 0, 0, depth);
 		planetObject.type = ENTITY_TYPE_PLANET;
-		planetObject.callback = planetCallback;
+		planetObject.callback = shipCallback;
 		planetObject.autoTrans = true;
 		planetObject.dieOffscreen = true;
 		planetObject.deathCallback = planetDeathCallback;
 		planetObject.callbackArguments[1] = speed;
 		planetObject.physical = true;
         planetObject.defaultColor = 'c';
-		planetObject.collHandler = planetCollision;
+		planetObject.collHandler = shipCollision;
 
         planetObject.fy = y;
         planetObject.fx = x;
@@ -268,13 +273,114 @@ public class Spaaace {
 	
 	EntityCallback planetCollision = new EntityCallback() {
 		public void run(Entity entity) {
-			for (Entity e : entity.collisions) {
-/*				if (e.type == ENTITY_TYPE_PLANET) {
+			/*for (Entity e : entity.collisions) {
+				if (e.type == ENTITY_TYPE_PLANET) {
 					addExplosion(e.fx, e.fy, e.depth);
 					entity.kill();
 					break;
-				}*/
-			}
+				}
+			}*/
+		}
+	};
+
+	private void addAllShips() {
+		final int screenSize = rows * columns;
+		final double shipCount = 1;
+
+		int maxWidth = 0;
+		int minWidth = columns - 1;
+
+		int maxHeight = 0;
+		int minHeight = rows - 1;
+
+		for (int i = 0; i < shipCount; i++) {
+			int x = random.nextInt(minWidth - maxWidth) + maxWidth;
+			int y = random.nextInt(minHeight - maxHeight) + maxHeight;
+			addShip(x, y);
+		}
+	}
+
+	private void addShip() {
+		int maxWidth = 0;
+		int minWidth = columns - 1;
+
+		int x = random.nextInt(minWidth - maxWidth) + maxWidth;;
+		int y = 0;
+
+		addShip(x, y);
+	}
+
+	private void addShip(int x, int y) {
+		final String shipImage[][] = {
+				{
+						"?--?",
+						"????",
+						"?--?",
+						"????",
+						"/||\\",
+						"\\/\\/",
+						"?\\/",
+				},
+				{
+						" yy ",
+						"    ",
+						" rr ",
+						"    ",
+						"gyyg",
+						"gggg",
+						" gg ",
+				},
+		};
+
+		// 1: land
+		// 2: sea
+
+		//randColorMono(colorMask);
+
+		int shipNum = random.nextInt(shipImage.length / 2);
+		int shipIndex = shipNum * 2;
+		float speed = random.nextFloat() * 2 + 0.25F;
+		int depth = random.nextInt(rows);
+		String[] colorMask = shipImage[shipIndex + 1];
+
+		final Entity shipObject = new Entity("planet", shipImage[shipIndex], colorMask, 0, 0, depth);
+		shipObject.type = ENTITY_TYPE_PLANET;
+		shipObject.callback = shipCallback;
+		shipObject.autoTrans = true;
+		shipObject.dieOffscreen = true;
+		shipObject.deathCallback = shipDeathCallback;
+		shipObject.callbackArguments[1] = speed;
+		shipObject.physical = true;
+		shipObject.defaultColor = 'c';
+		shipObject.collHandler = shipCollision;
+
+		shipObject.fy = y;
+		shipObject.fx = x;
+
+		anim.addEntity(shipObject);
+	}
+
+	EntityCallback shipCallback = new EntityCallback() {
+		public void run(Entity entity) {
+			entity.move();
+		}
+	};
+
+	EntityCallback shipDeathCallback = new EntityCallback() {
+		public void run(Entity entity) {
+			//addShip();
+		}
+	};
+
+	EntityCallback shipCollision = new EntityCallback() {
+		public void run(Entity entity) {
+			/*for (Entity e : entity.collisions) {
+				if (e.type == ENTITY_TYPE_PLANET) {
+					addExplosion(e.fx, e.fy, e.depth);
+					entity.kill();
+					break;
+				}
+			}*/
 		}
 	};
 	
