@@ -8,8 +8,8 @@ import static com.base512.spaaace.Entity.EntityCallback;
 
 public class Spaaace {
 	
-	final static int CELL_WIDTH = 8;
-	final static int CELL_HEIGHT = 16;
+	final static int CELL_WIDTH = 16;
+	final static int CELL_HEIGHT = 32;
 
 	final static int ENTITY_TYPE_STAR = 2;
 	final static int ENTITY_TYPE_PLANET = 3;
@@ -34,7 +34,8 @@ public class Spaaace {
 		anim = new Animation(columns, rows);
 		//anim.halfDelay(1);
 
-		addAllShips();
+		addAllDatums();
+		addAllTripus();
 		addAllPlanets();
         addAllStars();
 	}
@@ -62,7 +63,7 @@ public class Spaaace {
 		
 		return target;
 	}
-	
+
 	public void draw(Canvas canvas) {
 		anim.animate();
 
@@ -71,9 +72,12 @@ public class Spaaace {
         }
 
         if(random.nextFloat() > 0.98) {
-			addShip();
+			addDatum();
 		}
-		
+
+		if(random.nextFloat() > 0.99) {
+			addTripus();
+		}
 		char[] buffer = anim.screen.text;
 		char[] cbuffer = anim.screen.color;
 		char c;
@@ -237,7 +241,7 @@ public class Spaaace {
 		
 		final Entity planetObject = new Entity("planet", planetImage[planetIndex], colorMask, 0, 0, depth);
 		planetObject.type = ENTITY_TYPE_PLANET;
-		planetObject.callback = shipCallback;
+		planetObject.callback = tripusCallback;
 		planetObject.autoTrans = true;
 		planetObject.dieOffscreen = true;
 		planetObject.deathCallback = planetDeathCallback;
@@ -283,9 +287,9 @@ public class Spaaace {
 		}
 	};
 
-	private void addAllShips() {
+	private void addAllTripus() {
 		final int screenSize = rows * columns;
-		final double shipCount = 1;
+		final double TripusCount = 1;
 
 		int maxWidth = 0;
 		int minWidth = columns - 1;
@@ -293,25 +297,102 @@ public class Spaaace {
 		int maxHeight = 0;
 		int minHeight = rows - 1;
 
-		for (int i = 0; i < shipCount; i++) {
+		for (int i = 0; i < TripusCount; i++) {
 			int x = random.nextInt(minWidth - maxWidth) + maxWidth;
 			int y = random.nextInt(minHeight - maxHeight) + maxHeight;
-			addShip(x, y);
+			addTripus(x, y);
 		}
 	}
 
-	private void addShip() {
+	private void addTripus() {
 		int maxWidth = 0;
 		int minWidth = columns - 1;
 
 		int x = random.nextInt(minWidth - maxWidth) + maxWidth;;
 		int y = 0;
 
-		addShip(x, y);
+		addTripus(x, y);
 	}
 
-	private void addShip(int x, int y) {
-		final String shipImage[][] = {
+	private void addTripus(int x, int y) {
+		final String TripusImage[][] = {
+				{
+						"|    |    | ",
+						"\\\\  |||  // ",
+						" \\\\ ||| //  ",
+						"  \\\\_|_//   ",
+						"   \\   /    ",
+						"    \\_/     ",
+
+				},
+				{
+						"r    r    r ",
+						"ww  yyy  ww ",
+						" ww ryr ww  ",
+						"  wwwywww   ",
+						"   w   w    ",
+						"    www     ",
+
+				},
+		};
+
+		// 1: land
+		// 2: sea
+
+		//randColorMono(colorMask);
+
+		int TripusNum = random.nextInt(TripusImage.length / 2);
+		int datumIndex = TripusNum * 2;
+		float speed = random.nextFloat() * 2 + 0.25F;
+		int depth = random.nextInt(rows);
+		String[] colorMask = TripusImage[datumIndex + 1];
+
+		final Entity tripusObject = new Entity("tripus", TripusImage[datumIndex], colorMask, 0, 0, depth);
+		tripusObject.type = ENTITY_TYPE_PLANET;
+		tripusObject.callback = tripusCallback;
+		tripusObject.autoTrans = true;
+		tripusObject.dieOffscreen = true;
+		tripusObject.deathCallback = tripusDeathCallback;
+		tripusObject.callbackArguments[1] = speed;
+		tripusObject.physical = true;
+		tripusObject.defaultColor = 'r';
+		tripusObject.collHandler = shipCollision;
+
+		tripusObject.fy = y;
+		tripusObject.fx = x;
+
+		anim.addEntity(tripusObject);
+	}
+
+	private void addAllDatums() {
+		final int screenSize = rows * columns;
+		final double datumCount = 1;
+
+		int maxWidth = 0;
+		int minWidth = columns - 1;
+
+		int maxHeight = 0;
+		int minHeight = rows - 1;
+
+		for (int i = 0; i < datumCount; i++) {
+			int x = random.nextInt(minWidth - maxWidth) + maxWidth;
+			int y = random.nextInt(minHeight - maxHeight) + maxHeight;
+			addDatum(x, y);
+		}
+	}
+
+	private void addDatum() {
+		int maxWidth = 0;
+		int minWidth = columns - 1;
+
+		int x = random.nextInt(minWidth - maxWidth) + maxWidth;;
+		int y = 0;
+
+		addDatum(x, y);
+	}
+
+	private void addDatum(int x, int y) {
+		final String datumImage[][] = {
 				{
 						"?--?",
 						"????",
@@ -337,38 +418,38 @@ public class Spaaace {
 
 		//randColorMono(colorMask);
 
-		int shipNum = random.nextInt(shipImage.length / 2);
-		int shipIndex = shipNum * 2;
+		int datumNum = random.nextInt(datumImage.length / 2);
+		int datumIndex = datumNum * 2;
 		float speed = random.nextFloat() * 2 + 0.25F;
 		int depth = random.nextInt(rows);
-		String[] colorMask = shipImage[shipIndex + 1];
+		String[] colorMask = datumImage[datumIndex + 1];
 
-		final Entity shipObject = new Entity("planet", shipImage[shipIndex], colorMask, 0, 0, depth);
-		shipObject.type = ENTITY_TYPE_PLANET;
-		shipObject.callback = shipCallback;
-		shipObject.autoTrans = true;
-		shipObject.dieOffscreen = true;
-		shipObject.deathCallback = shipDeathCallback;
-		shipObject.callbackArguments[1] = speed;
-		shipObject.physical = true;
-		shipObject.defaultColor = 'c';
-		shipObject.collHandler = shipCollision;
+		final Entity datumObject = new Entity("datum", datumImage[datumIndex], colorMask, 0, 0, depth);
+		datumObject.type = ENTITY_TYPE_PLANET;
+		datumObject.callback = tripusCallback;
+		datumObject.autoTrans = true;
+		datumObject.dieOffscreen = true;
+		datumObject.deathCallback = tripusDeathCallback;
+		datumObject.callbackArguments[1] = speed;
+		datumObject.physical = true;
+		datumObject.defaultColor = 'c';
+		datumObject.collHandler = shipCollision;
 
-		shipObject.fy = y;
-		shipObject.fx = x;
+		datumObject.fy = y;
+		datumObject.fx = x;
 
-		anim.addEntity(shipObject);
+		anim.addEntity(datumObject);
 	}
 
-	EntityCallback shipCallback = new EntityCallback() {
+	EntityCallback tripusCallback = new EntityCallback() {
 		public void run(Entity entity) {
 			entity.move();
 		}
 	};
 
-	EntityCallback shipDeathCallback = new EntityCallback() {
+	EntityCallback tripusDeathCallback = new EntityCallback() {
 		public void run(Entity entity) {
-			//addShip();
+			//addDatum();
 		}
 	};
 
@@ -383,7 +464,7 @@ public class Spaaace {
 			}*/
 		}
 	};
-	
+
 	private void addExplosion(float fx, float fy, int depth) {
 		final String[][] explosionImage = {
 			{
